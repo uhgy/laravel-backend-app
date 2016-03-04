@@ -12,6 +12,7 @@
 */
 
 Route::get('/', function () {
+    $test = 'test';
     return view('welcome');
 });
 
@@ -25,3 +26,4 @@ Route::resource('article', 'ArticleController');
 //Route::GET('article/{article}/edit', 'ArticleController@edit');
 //Route::PUT('article/{article}', 'ArticleController@update');
 //Route::DELETE('article/{article}', 'ArticleController@destroy');
+
