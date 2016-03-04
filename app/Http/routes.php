@@ -10,10 +10,11 @@
 | and give it the controller to call when that URI is requested.
 |
 */
+use Carbon\Carbon;
 
 Route::get('/', function () {
-    $test = 'test';
-    return view('welcome');
+//    return view('welcome');
+    return Carbon::now();
 });
 
 

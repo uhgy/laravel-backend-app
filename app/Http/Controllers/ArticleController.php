@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Article;
+use Carbon\Carbon;
 
 class ArticleController extends Controller
 {
@@ -16,8 +18,26 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        //
-        return 'success';
+        $articles = Article::all();
+        if($articles) {
+            return response()->json([
+                "meta" => [
+                    "code" => "200"
+                ],
+                "data" => [
+                    "articles" => $articles
+                ]
+            ]);
+        }else {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "insert failure"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
+
     }
 
     /**
@@ -28,6 +48,7 @@ class ArticleController extends Controller
     public function create()
     {
         //
+
     }
 
     /**
@@ -39,6 +60,28 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         //
+        $input = $request->all();
+        //下面增加两行，顺便看看Request::get的使用
+        $input['introduction'] = mb_substr($input['content'],0,64);
+        $input['published_at'] = Carbon::now();
+        $article = Article::create($input);
+        if($article) {
+            return response()->json([
+                "meta" => [
+                    "code" => "200"
+                ],
+                "data" => (object)Array()
+
+            ]);
+        }else {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "insert failure"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
     }
 
     /**
@@ -50,6 +93,26 @@ class ArticleController extends Controller
     public function show($id)
     {
         //
+        $article = Article::findOrFail($id);
+        if($article) {
+            return response()->json([
+                "meta" => [
+                    "code" => "200"
+                ],
+                "data" => [
+                    "article" => $article
+                ]
+
+            ]);
+        } else {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "find failure"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
     }
 
     /**
