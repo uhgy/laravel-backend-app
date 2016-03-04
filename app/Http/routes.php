@@ -18,10 +18,10 @@ Route::get('/', function () {
 
 Route::resource('article', 'ArticleController');
 
-Route::Get('/article', 'ArticleController@index');
-Route::Get('article/create', 'ArticleController@create');
-Route::POST('article',  'ArticleController@store');
-Route::GET('article/{article}', 'ArticleController@show');
-Route::GET('article/{article}/edit', 'ArticleController@edit');
-Route::PUT('article/{article}', 'ArticleController@update');
-Route::DELETE('article/{article}', 'ArticleController@destroy');
+//Route::Get('/article', 'ArticleController@index');
+//Route::Get('article/create', 'ArticleController@create');
+//Route::POST('article',  'ArticleController@store');
+//Route::GET('article/{article}', 'ArticleController@show');
+//Route::GET('article/{article}/edit', 'ArticleController@edit');
+//Route::PUT('article/{article}', 'ArticleController@update');
+//Route::DELETE('article/{article}', 'ArticleController@destroy');
