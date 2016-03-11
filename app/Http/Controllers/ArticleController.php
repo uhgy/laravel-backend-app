@@ -20,7 +20,7 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = DB::table('articles')->orderBy('id', 'desc')->get();
-        if($articles) {
+        if(is_array($articles)) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
@@ -33,7 +33,7 @@ class ArticleController extends Controller
             return response()->json([
                 "meta" => [
                     "code" => "550",
-                    "error" => "insert failure"
+                    "error" => "get article list failure"
                 ],
                 "data" => (object)Array()
             ]);
@@ -189,8 +189,8 @@ class ArticleController extends Controller
     public function destroy($id)
     {
         //
-        $article = Article::find($id);
-        if($article->delete()) {
+        $article = Article::find($id)->delete();
+        if($article) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
