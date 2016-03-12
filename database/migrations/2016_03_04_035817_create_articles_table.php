@@ -17,6 +17,8 @@ class CreateArticlesTable extends Migration
             $table->string('title');
             $table->text('introduction');
             $table->text('content');
+            $table->integer('user_id')->unsigned()->index();;
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamp('published_at');
             $table->timestamps(); // 自动创建的两个字段：created_at 和 updated_at
 

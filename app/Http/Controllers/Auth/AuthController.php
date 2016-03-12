@@ -107,24 +107,6 @@ class AuthController extends Controller
         ]);
     }
 
-//    /**
-//     * Show the application login form.
-//     *
-//     * @return \Illuminate\Http\Response
-//     */
-//    public function getLogin()
-//    {
-//        return response()->json([
-//            "meta" => [
-//                "code" => "200"
-//            ],
-//            "data" => [
-//                "_token"=> csrf_token()
-//            ]
-//        ]);
-//    }
-
-
     /**
      * Handle a login request to the application.
      *

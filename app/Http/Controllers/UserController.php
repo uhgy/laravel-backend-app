@@ -59,7 +59,7 @@ class UserController extends Controller
         //下面增加两行，顺便看看Request::get的使用
         $input['published_at'] = Carbon::now();
         $user = user::create($input);
-        if($user) {
+        if(isset($user)) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
@@ -87,7 +87,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
-        if($user) {
+        if(isset($user)) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
@@ -117,7 +117,7 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        if($user) {
+        if(isset($user)) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
@@ -152,7 +152,7 @@ class UserController extends Controller
         //使用Eloquent的update()方法来更新，
         //request的except()是排除某个提交过来的数据，我们这里排除id
         $user->update($request->except('id'));
-        if($user) {
+        if(isset($user)) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
@@ -180,7 +180,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id)->delete();
-        if($user) {
+        if(isset($user)) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
@@ -193,6 +193,40 @@ class UserController extends Controller
                 "meta" => [
                     "code" => "550",
                     "error" => "update failure"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
+    }
+
+    public function articleList($id)
+    {
+        $user = User::find($id);
+        if(empty($user)) {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "user id not right"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
+        $articles = $user->articles->toArray();
+        if(is_array($articles)) {
+            return response()->json([
+                "meta" => [
+                    "code" => "200"
+                ],
+                "data" => [
+                    'articles' => $articles
+                ]
+
+            ]);
+        } else {
+            return response()->json([
+                "meta" => [
+                    "code" => "551",
+                    "error" => "get article list wrong"
                 ],
                 "data" => (object)Array()
             ]);

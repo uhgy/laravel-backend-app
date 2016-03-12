@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Article;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ArticleController extends Controller
 {
@@ -65,7 +67,19 @@ class ArticleController extends Controller
         //下面增加两行，顺便看看Request::get的使用
 //        $input['introduction'] = mb_substr($input['content'],0,64);
         $input['published_at'] = Carbon::now();
+        $user_id = $input['user_id'];
+
+        if(empty($user_id) || !User::find($user_id)) {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "user not exist"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
         $article = Article::create($input);
+
         if($article) {
             return response()->json([
                 "meta" => [
@@ -77,7 +91,7 @@ class ArticleController extends Controller
         }else {
             return response()->json([
                 "meta" => [
-                    "code" => "550",
+                    "code" => "551",
                     "error" => "insert failure"
                 ],
                 "data" => (object)Array()
