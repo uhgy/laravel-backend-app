@@ -23,6 +23,7 @@ Route::get('/home', function () {
 
 Route::resource('article', 'ArticleController');
 
+Route::resource('user', 'UserController');
 
 Route::controllers([
     'auth' => 'Auth\AuthController',
