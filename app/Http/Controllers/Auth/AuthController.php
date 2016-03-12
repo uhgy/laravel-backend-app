@@ -107,6 +107,23 @@ class AuthController extends Controller
         ]);
     }
 
+//    /**
+//     * Show the application login form.
+//     *
+//     * @return \Illuminate\Http\Response
+//     */
+//    public function getLogin()
+//    {
+//        return response()->json([
+//            "meta" => [
+//                "code" => "200"
+//            ],
+//            "data" => [
+//                "_token"=> csrf_token()
+//            ]
+//        ]);
+//    }
+
 
     /**
      * Handle a login request to the application.
@@ -116,9 +133,21 @@ class AuthController extends Controller
      */
     public function postLogin(Request $request)
     {
-        $this->validate($request, [
+        $validator =  $this->validate($request, [
             $this->loginEmail() => 'required', 'password' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "email and password are required"
+                ],
+                "data" => [
+                    "regInfo" => $validator->getMessageBag()
+                ]
+            ]);
+        }
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
@@ -161,7 +190,7 @@ class AuthController extends Controller
         $logInfo =  $request->only($this->loginUsername(), 'remember');
         return response()->json([
             "meta" => [
-                "code" => "550",
+                "code" => "552",
                 "error" => "email or password not right"
             ],
             "data" => [
@@ -169,6 +198,22 @@ class AuthController extends Controller
             ]
         ]);
 
+    }
+
+    /**
+     * Validate the given request with the given rules.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  array  $rules
+     * @param  array  $messages
+     * @param  array  $customAttributes
+     * @return void
+     *
+     * @throws \Illuminate\Http\Exception\HttpResponseException
+     */
+    public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = [])
+    {
+        return $this->getValidationFactory()->make($request->all(), $rules, $messages, $customAttributes);
     }
 
     /**
@@ -187,8 +232,9 @@ class AuthController extends Controller
         if (method_exists($this, 'authenticated')) {
             return $this->authenticated($request, Auth::user());
         }
-
     }
+
+
 
     /**
      * Log the user out of the application.
@@ -205,7 +251,5 @@ class AuthController extends Controller
             ],
             "data" => (object)Array()
         ]);
-
-//        return redirect(property_exists($this, 'redirectAfterLogout') ? $this->redirectAfterLogout : '/');
     }
 }
