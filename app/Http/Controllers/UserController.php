@@ -56,9 +56,9 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        //下面增加两行，顺便看看Request::get的使用
+        //增加
         $input['published_at'] = Carbon::now();
-        $user = user::create($input);
+        $user = User::create($input);
         if(isset($user)) {
             return response()->json([
                 "meta" => [

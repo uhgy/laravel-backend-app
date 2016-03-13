@@ -14,4 +14,6 @@ class Article extends Model
         'user_id',
         'published_at'
     ];
+
+
 }

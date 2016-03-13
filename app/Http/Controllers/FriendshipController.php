@@ -37,7 +37,25 @@ class FriendshipController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $input = $request->all();
+        $friendship = Friendship::create($input);
+        if(isset($friendship)) {
+            return response()->json([
+                "meta" => [
+                    "code" => "200"
+                ],
+                "data" => (object)Array()
+
+            ]);
+        }else {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "add friendship failure"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
     }
 
     /**
@@ -83,5 +101,45 @@ class FriendshipController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Display a listing of the resource belong to specific user.
+     *
+     * @param  int  $user_id
+     * @return \Illuminate\Http\Response
+     */
+    public function friendList($user_id)
+    {
+        $user = User::find($user_id);
+        if(empty($user)) {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "user id not right"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
+        $friends = $user->friendships->toArray();
+        if(is_array($friends)) {
+            return response()->json([
+                "meta" => [
+                    "code" => "200"
+                ],
+                "data" => [
+                    'friends' => $friends
+                ]
+
+            ]);
+        } else {
+            return response()->json([
+                "meta" => [
+                    "code" => "551",
+                    "error" => "get friend list wrong"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
     }
 }

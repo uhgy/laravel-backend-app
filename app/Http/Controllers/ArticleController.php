@@ -17,17 +17,27 @@ class ArticleController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @queryString int $page
+     * @queryString string $search_string
+     *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $articles = DB::table('articles')->orderBy('id', 'desc')->get();
+        $this->perPage = 5;
+        $page = intval($request->query('page')) ? intval($request->query('page')) : "1";
+        $skip = ($page-1) * $this->perPage;
+        $total = DB::table('articles')->where('published_at', '>', Carbon::yesterday())->count();
+        $articles = DB::table('articles')->where('published_at', '>', Carbon::yesterday())
+            ->skip($skip)->take($this->perPage)->orderBy('id', 'desc')->get();
         if(is_array($articles)) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
                 ],
                 "data" => [
+                    "total" => $total,
+                    "perPage" => $this->perPage,
                     "articles" => $articles
                 ]
             ]);
@@ -226,10 +236,14 @@ class ArticleController extends Controller
      * Display a listing of the resource belong to specific user.
      *
      * @param  int  $user_id
+     * @queryString int $page
      * @return \Illuminate\Http\Response
      */
-    public function articleList($user_id)
+    public function articleList(Request $request, $user_id)
     {
+        $page = intval($request->query('page')) ? intval($request->query('page')) : "1";
+        $skip = ($page-1) * $this->perPage;
+
         $user = User::find($user_id);
         if(empty($user)) {
             return response()->json([
@@ -240,14 +254,21 @@ class ArticleController extends Controller
                 "data" => (object)Array()
             ]);
         }
-        $articles = $user->articles->toArray();
+        $total = DB::table('articles')
+            ->where('user_id', $user_id)->count();
+
+        $articles = DB::table('articles')
+            ->where('user_id', $user_id)
+            ->skip($skip)->take($this->perPage)->get();
         if(is_array($articles)) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
                 ],
                 "data" => [
-                    'articles' => $articles
+                    "total" => $total,
+                    "perPage" => $this->perPage,
+                    "articles" => $articles
                 ]
 
             ]);
