@@ -67,9 +67,8 @@ class ArticleController extends Controller
         //下面增加两行，顺便看看Request::get的使用
 //        $input['introduction'] = mb_substr($input['content'],0,64);
         $input['published_at'] = Carbon::now();
-        $user_id = $input['user_id'];
 
-        if(empty($user_id) || !User::find($user_id)) {
+        if(empty($input['user_id']) || !User::find($input['user_id'])) {
             return response()->json([
                 "meta" => [
                     "code" => "550",
@@ -172,8 +171,8 @@ class ArticleController extends Controller
         //根据id查询到需要更新的article
         $article = Article::find($id);
         //使用Eloquent的update()方法来更新，
-        //request的except()是排除某个提交过来的数据，我们这里排除id
-        $article->update($request->except('id'));
+        //request的except()是排除某个提交过来的数据，我们这里排除id, user_id
+        $article->update($request->except('id', 'user_id'));
         if($article) {
             return response()->json([
                 "meta" => [
@@ -222,5 +221,44 @@ class ArticleController extends Controller
             ]);
         }
 
+    }
+    /**
+     * Display a listing of the resource belong to specific user.
+     *
+     * @param  int  $user_id
+     * @return \Illuminate\Http\Response
+     */
+    public function articleList($user_id)
+    {
+        $user = User::find($user_id);
+        if(empty($user)) {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "user id not right"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
+        $articles = $user->articles->toArray();
+        if(is_array($articles)) {
+            return response()->json([
+                "meta" => [
+                    "code" => "200"
+                ],
+                "data" => [
+                    'articles' => $articles
+                ]
+
+            ]);
+        } else {
+            return response()->json([
+                "meta" => [
+                    "code" => "551",
+                    "error" => "get article list wrong"
+                ],
+                "data" => (object)Array()
+            ]);
+        }
     }
 }

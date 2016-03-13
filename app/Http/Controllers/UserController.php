@@ -199,37 +199,4 @@ class UserController extends Controller
         }
     }
 
-    public function articleList($id)
-    {
-        $user = User::find($id);
-        if(empty($user)) {
-            return response()->json([
-                "meta" => [
-                    "code" => "550",
-                    "error" => "user id not right"
-                ],
-                "data" => (object)Array()
-            ]);
-        }
-        $articles = $user->articles->toArray();
-        if(is_array($articles)) {
-            return response()->json([
-                "meta" => [
-                    "code" => "200"
-                ],
-                "data" => [
-                    'articles' => $articles
-                ]
-
-            ]);
-        } else {
-            return response()->json([
-                "meta" => [
-                    "code" => "551",
-                    "error" => "get article list wrong"
-                ],
-                "data" => (object)Array()
-            ]);
-        }
-    }
 }

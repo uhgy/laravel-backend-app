@@ -27,7 +27,7 @@ Route::resource('user', 'UserController');
 
 Route::resource('friendship', 'FriendshipController');
 
-Route::get('user/{user}/article', 'UserController@articleList');
+Route::get('user/{user}/article', 'ArticleController@articleList');
 
 Route::controllers([
     'auth' => 'Auth\AuthController',
