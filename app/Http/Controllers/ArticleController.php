@@ -78,15 +78,16 @@ class ArticleController extends Controller
 //        $input['introduction'] = mb_substr($input['content'],0,64);
         $input['published_at'] = Carbon::now();
 
-        if(empty($input['user_id']) || !User::find($input['user_id'])) {
-            return response()->json([
-                "meta" => [
-                    "code" => "550",
-                    "error" => "user not exist"
-                ],
-                "data" => (object)Array()
-            ]);
-        }
+//        if(empty($input['user_id']) || !User::find($input['user_id'])) {
+//            return response()->json([
+//                "meta" => [
+//                    "code" => "550",
+//                    "error" => "user not exist"
+//                ],
+//                "data" => (object)Array()
+//            ]);
+//        }
+        $input['user_id'] = Auth::user()->id;
         $article = Article::create($input);
 
         if($article) {
@@ -148,6 +149,15 @@ class ArticleController extends Controller
     public function edit($id)
     {
         $article = Article::findOrFail($id);
+        if(Auth::user()->id != $article->user_id) {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "you can't edit this article",
+                ],
+                "data" => (object)Array()
+            ]);
+        }
         if($article) {
             return response()->json([
                 "meta" => [
@@ -161,7 +171,7 @@ class ArticleController extends Controller
         } else {
             return response()->json([
                 "meta" => [
-                    "code" => "550",
+                    "code" => "551",
                     "error" => "find failure"
                 ],
                 "data" => (object)Array()
@@ -180,9 +190,18 @@ class ArticleController extends Controller
     {
         //根据id查询到需要更新的article
         $article = Article::find($id);
+        if(Auth::user()->id != $article->user_id) {
+            return response()->json([
+                "meta" => [
+                    "code" => "550",
+                    "error" => "you can't update this article",
+                ],
+                "data" => (object)Array()
+            ]);
+        }
         //使用Eloquent的update()方法来更新，
         //request的except()是排除某个提交过来的数据，我们这里排除id, user_id
-        $article->update($request->except('id', 'user_id'));
+        $article->update($request->except('id'));
         if($article) {
             return response()->json([
                 "meta" => [
@@ -194,7 +213,7 @@ class ArticleController extends Controller
         } else {
             return response()->json([
                 "meta" => [
-                    "code" => "550",
+                    "code" => "551",
                     "error" => "update failure"
                 ],
                 "data" => (object)Array()
@@ -243,7 +262,7 @@ class ArticleController extends Controller
     {
         $page = intval($request->query('page')) ? intval($request->query('page')) : "1";
         $skip = ($page-1) * $this->perPage;
-
+//        var_dump(Auth::user());exit;return $request;exit;
         $user = User::find($user_id);
         if(empty($user)) {
             return response()->json([
