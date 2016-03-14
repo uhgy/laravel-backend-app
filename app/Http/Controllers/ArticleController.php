@@ -27,9 +27,14 @@ class ArticleController extends Controller
         $this->perPage = 5;
         $page = intval($request->query('page')) ? intval($request->query('page')) : "1";
         $skip = ($page-1) * $this->perPage;
-        $total = DB::table('articles')->where('published_at', '>', Carbon::yesterday())->count();
-        $articles = DB::table('articles')->where('published_at', '>', Carbon::yesterday())
-            ->skip($skip)->take($this->perPage)->orderBy('id', 'desc')->get();
+        $total = DB::table('articles')
+            ->join('users', 'articles.user_id', '=', 'users.id')
+            ->where('published_at', '>', Carbon::yesterday())->count();
+        $articles = DB::table('articles')
+            ->join('users', 'articles.user_id', '=', 'users.id')
+            ->where('published_at', '>', Carbon::yesterday())
+            ->skip($skip)->take($this->perPage)->orderBy('id', 'desc')
+            ->select('articles.*', 'users.name as username')->get();
         if(is_array($articles)) {
             return response()->json([
                 "meta" => [
@@ -77,16 +82,6 @@ class ArticleController extends Controller
         //下面增加两行，顺便看看Request::get的使用
 //        $input['introduction'] = mb_substr($input['content'],0,64);
         $input['published_at'] = Carbon::now();
-
-//        if(empty($input['user_id']) || !User::find($input['user_id'])) {
-//            return response()->json([
-//                "meta" => [
-//                    "code" => "550",
-//                    "error" => "user not exist"
-//                ],
-//                "data" => (object)Array()
-//            ]);
-//        }
         $input['user_id'] = Auth::user()->id;
         $article = Article::create($input);
 
@@ -118,7 +113,7 @@ class ArticleController extends Controller
     public function show($id)
     {
         //
-        $article = Article::findOrFail($id);
+        $article = Article::find($id);
         if($article) {
             return response()->json([
                 "meta" => [
@@ -148,17 +143,17 @@ class ArticleController extends Controller
      */
     public function edit($id)
     {
-        $article = Article::findOrFail($id);
-        if(Auth::user()->id != $article->user_id) {
+        $article = Article::find($id);
+        if(!$article) {
             return response()->json([
                 "meta" => [
                     "code" => "550",
-                    "error" => "you can't edit this article",
+                    "error" => "find failure"
                 ],
                 "data" => (object)Array()
             ]);
         }
-        if($article) {
+        if(isset($article) && Auth::user()->id == $article->user_id) {
             return response()->json([
                 "meta" => [
                     "code" => "200"
@@ -168,15 +163,17 @@ class ArticleController extends Controller
                 ]
 
             ]);
-        } else {
+        } else if(Auth::user()->id != $article->user_id) {
             return response()->json([
                 "meta" => [
                     "code" => "551",
-                    "error" => "find failure"
+                    "error" => "you can't edit this article",
                 ],
                 "data" => (object)Array()
             ]);
         }
+
+
     }
 
     /**
