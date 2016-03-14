@@ -29,10 +29,10 @@ class ArticleController extends Controller
         $skip = ($page-1) * $this->perPage;
         $total = DB::table('articles')
             ->join('users', 'articles.user_id', '=', 'users.id')
-            ->where('published_at', '>', Carbon::yesterday())->count();
+            ->count();//->where('published_at', '>', Carbon::yesterday())
         $articles = DB::table('articles')
             ->join('users', 'articles.user_id', '=', 'users.id')
-            ->where('published_at', '>', Carbon::yesterday())
+//            ->where('published_at', '>', Carbon::yesterday())
             ->skip($skip)->take($this->perPage)->orderBy('id', 'desc')
             ->select('articles.*', 'users.name as username')->get();
         if(is_array($articles)) {
